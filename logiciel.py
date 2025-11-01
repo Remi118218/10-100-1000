@@ -1,5 +1,7 @@
 #Début
 
+#bonjour
+
 from tkinter import*
 from time import*
 from math import*
