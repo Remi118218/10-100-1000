@@ -1,6 +1,6 @@
 #Début
 
-#bonjour
+#bonjour toi
 
 from tkinter import*
 from time import*
