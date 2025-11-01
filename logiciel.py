@@ -1,7 +1,5 @@
 #Début
 
-#bonjour toi
-
 from tkinter import*
 from time import*
 from math import*
@@ -14,7 +12,7 @@ global value
 global labelmincepacked
 labelmincepacked=False
 
-#Fonctions
+#Fonctions de fenetres
 
 def printok(event=None):
     print("ok")
@@ -41,6 +39,8 @@ def quitter(event):
     quitterf.resizable(False,False)
     Label(quitterf,text="Voulez-vous vraiment quitter ?").pack(pady=10)
     Button(quitterf,text="Valider et Quitter",command=fenetre.destroy).pack()
+
+# Fonctions de calcul
 
 def multi(event=None):
     value3p2.set(valuep1.get())
@@ -121,6 +121,8 @@ def div(event=None):
                     num.append(canvasp2.create_text(float(p.get()),145,text="0",font="Arial 20",fill='black',tags='number'))
                     p.set(str(float(p.get())+150))
 
+# Fonctions d'exercice
+
 def Exo1(Event=None):
     value3p3.set(value1p3.get())
     print(value3p3.get(),",",value1p3.get())
@@ -138,8 +140,6 @@ def Exo1(Event=None):
     else:
         labelmince.pack_forget()
         labelmince.pack(pady=10)
-
-# Fonctions d'exercice
 
 def entrer(n):
     if Po[n].get()!=',':
@@ -169,7 +169,7 @@ def phase1():
     entreep1.focus_set()
     fenetre.bind("<Return>",phase2)
     fenetre.geometry("1200x200")
-    fenetre.minsize(1200,150)
+    fenetre.minsize(1200,200)
 
 def phase2(event=None):
     if valuep1.get() and valuep1.get() != '\0' and float(valuep1.get()) >= 0.01 and float(valuep1.get()) < 1000 and divmod(100*float(valuep1.get()),1)[1]<0.01:
