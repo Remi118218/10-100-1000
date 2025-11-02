@@ -58,13 +58,6 @@ def quitter(event):
 def multi(event=None):
     # Initialisation de value2p2
     value2p2.set(str(float(value2p2.get())*10))
-
-    # A compléter quand j'arriverai à cet endroit
-    if value%1==0.5 and float(value2p2.get())==0.0001:
-        value3p2.set(10*ceil(value))
-    elif value%1>0 and float(value2p2.get())==0.001:
-        value3p2.set(10*round(10*value))
-
     # Si le value2p2 est un entier, il vaut mieux faire ça
     if float(floor(float(value2p2.get()))) == float(value2p2.get()):
         value2p2.set(str(float(floor(float(value2p2.get())))))
@@ -77,14 +70,21 @@ def multi(event=None):
         if value-value%1==0 and float(value2p2.get())>1:
             valuep1.set(valuep1.get().replace("0",""))
         value3p2.set(valuep1.get())
+        # Arrondis du nombre pour un meilleur affichage dans les petites puissances
+        if value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
+            value3p2.set(str(ceil(10*value)/10).replace(".",""))
         value1p2.set(" x"+value2p2.get()+" ")
         pu.set(str(float(pu.get())-150))
         canvasp2.delete('number') # On enlève tous les chiffres du canva
         # On remplit pos avec les positions de chaque chiffres
         pos=[]
         p.set(pu.get())
+        if value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
+            p.set(float(pu.get())-150)
+        print(pu.get())
         num=[]
         for i in range (len(value3p2.get())):
+            print(p.get(), value3p2.get()[len(value3p2.get())-i-1])
             num.append(canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number'))
             pos.append(float(p.get()))
             if float(p.get())<225: # Si on atteint la limite du cadre
@@ -107,7 +107,7 @@ def div(event=None):
     # Initialisation de value2p2 et de value3p2
     value3p2.set(valuep1.get())
     value2p2.set(str(float(value2p2.get())/10))
-    # Arrondis du nombre pour un meilleur affichage
+    # Arrondis du nombre pour un meilleur affichage dans les petites puissances
     if value%1>=0.5 and float(value2p2.get())==0.0001:
         value3p2.set(round(value))
     elif value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
@@ -115,35 +115,42 @@ def div(event=None):
     # Si le value2p2 est un entier, il vaut mieux faire ça
     if float(floor(float(value2p2.get()))) == float(value2p2.get()):
         value2p2.set(str(float(floor(float(value2p2.get())))))
+    # Empêche d'aller trop bas
     if float(value2p2.get()) < 0.0001:
         erreur("Ce jeu est limité à 0.0001")
         value2p2.set("0.0001")
     else:
         value1p2.set(" x"+value2p2.get()+" ")
         pu.set(str(float(pu.get())+150))
-        canvasp2.delete('number')
+        canvasp2.delete('number') # On enlève tous les chiffres du canva
+        # On remplit pos avec les positions de chaque chiffres
         pos=[]
         p.set(pu.get())
-        pos.append(float(pu.get()))
-        num=[0,0,0,0]
+        if value%1>=0.5 and float(value2p2.get())==0.0001:
+            p.set(float(pu.get())-300)
+        elif value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
+            p.set(float(pu.get())-150)
+        print(pu.get())
+        num=[]
         for i in range (len(value3p2.get())):
             print(p.get(), value3p2.get()[len(value3p2.get())-i-1])
-            num[i]=canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number')
+            num.append(canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number'))
             pos.append(float(p.get()))
-            if float(p.get())<225:
-                p.set(str(float(p.get())-15))
+            if float(p.get())<225: # Si on atteint la limite du cadre
+                p.set(str(float(p.get())-15)) # On met tous les chiffres dans la même case
             else:
                 p.set(str(float(p.get())-150))
-        if 675 not in pos:
+        if 675 not in pos: # Si la position de la case centrale n'est pas dans pos
             p.set("675")
-            if max(pos)<675:
+            if max(pos)<675: # Si la position du chiffre de poid fort est inférieure à 675
                 while float(p.get())>max(pos):
                     num.append(canvasp2.create_text(float(p.get()),145,text="0",font="Arial 20",fill='black',tags='number'))
                     p.set(str(float(p.get())-150))
-            if min(pos)>675:
+            if min(pos)>675: # Si pu est supérieure à 675
                 while float(p.get())<min(pos):
                     num.append(canvasp2.create_text(float(p.get()),145,text="0",font="Arial 20",fill='black',tags='number'))
                     p.set(str(float(p.get())+150))
+            # alors on complète de 0 jusqu'à la case centrale
 
 # Fonctions d'exercice
 
