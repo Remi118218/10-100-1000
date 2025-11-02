@@ -1,3 +1,16 @@
+'''
+valuep1 -> (StringVar) nombre donné pendant la phase 1 sans la virgule
+value -> (float) nombre donné pendant la phase 1
+pu -> (StringVar) la position du chiffre de poid faible
+p -> (StringVar) la position du chiffre courant (initialisé à 675 puis à pu)
+num -> (list) la liste contenant tous les objets canvas des chiffres du nombre
+value1p2 -> (StringVar) le texte de multiplication de la phase 2
+value2p2 -> (StringVar) la puissance de 10 courante
+value3p2 -> (StringVar) égale à valuep1
+pos -> (list) liste des positions des chiffres du nombre
+
+'''
+
 #Début
 
 from tkinter import*
@@ -43,52 +56,63 @@ def quitter(event):
 # Fonctions de calcul
 
 def multi(event=None):
-    value3p2.set(valuep1.get())
+    # Initialisation de value2p2
     value2p2.set(str(float(value2p2.get())*10))
+
+    # A compléter quand j'arriverai à cet endroit
     if value%1==0.5 and float(value2p2.get())==0.0001:
         value3p2.set(10*ceil(value))
     elif value%1>0 and float(value2p2.get())==0.001:
         value3p2.set(10*round(10*value))
+
+    # Si le value2p2 est un entier, il vaut mieux faire ça
     if float(floor(float(value2p2.get()))) == float(value2p2.get()):
         value2p2.set(str(float(floor(float(value2p2.get())))))
+    # Empêche d'aller trop haut
     if float(value2p2.get()) > 10000:
         erreur("Ce jeu est limité à 10000")
         value2p2.set("10000")
     else:
+        # si value n'a pas de partie entière on enlève les 0 de valuep1
         if value-value%1==0 and float(value2p2.get())>1:
             valuep1.set(valuep1.get().replace("0",""))
+        value3p2.set(valuep1.get())
         value1p2.set(" x"+value2p2.get()+" ")
         pu.set(str(float(pu.get())-150))
-        canvasp2.delete('number')
+        canvasp2.delete('number') # On enlève tous les chiffres du canva
+        # On remplit pos avec les positions de chaque chiffres
         pos=[]
         p.set(pu.get())
-        pos.append(float(pu.get()))
-        num=[0,0,0,0]
+        num=[]
         for i in range (len(value3p2.get())):
-            num[i]=canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number')
+            num.append(canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number'))
             pos.append(float(p.get()))
-            if float(p.get())<225:
-                p.set(str(float(p.get())-15))
+            if float(p.get())<225: # Si on atteint la limite du cadre
+                p.set(str(float(p.get())-15)) # On met tous les chiffres dans la même case
             else:
                 p.set(str(float(p.get())-150))
-        if 675 not in pos:
+        if 675 not in pos: # Si la position de la case centrale n'est pas dans pos
             p.set("675")
-            if max(pos)<675:
+            if max(pos)<675: # Si la position du chiffre de poid fort est inférieure à 675
                 while float(p.get())>max(pos):
                     num.append(canvasp2.create_text(float(p.get()),145,text="0",font="Arial 20",fill='black',tags='number'))
                     p.set(str(float(p.get())-150))
-            if min(pos)>675:
+            if min(pos)>675: # Si pu est supérieure à 675
                 while float(p.get())<min(pos):
                     num.append(canvasp2.create_text(float(p.get()),145,text="0",font="Arial 20",fill='black',tags='number'))
                     p.set(str(float(p.get())+150))
+            # alors on complète de 0 jusqu'à la case centrale
 
 def div(event=None):
+    # Initialisation de value2p2 et de value3p2
     value3p2.set(valuep1.get())
     value2p2.set(str(float(value2p2.get())/10))
-    if value%1==0.5 and float(value2p2.get())==0.0001:
-        value3p2.set(ceil(value))
-    elif value%1>0 and 10*value%1 and float(value2p2.get())==0.001:
-        value3p2.set(10*round(10*value))
+    # Arrondis du nombre pour un meilleur affichage
+    if value%1>=0.5 and float(value2p2.get())==0.0001:
+        value3p2.set(round(value))
+    elif value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
+        value3p2.set(str(ceil(10*value)/10).replace(".",""))
+    # Si le value2p2 est un entier, il vaut mieux faire ça
     if float(floor(float(value2p2.get()))) == float(value2p2.get()):
         value2p2.set(str(float(floor(float(value2p2.get())))))
     if float(value2p2.get()) < 0.0001:
@@ -172,21 +196,21 @@ def phase1():
     fenetre.minsize(1200,200)
 
 def phase2(event=None):
-    if valuep1.get() and valuep1.get() != '\0' and float(valuep1.get()) >= 0.01 and float(valuep1.get()) < 1000 and divmod(100*float(valuep1.get()),1)[1]<0.01:
-        ######### on enlève les 0 en trop #########
+    valuep1.set(valuep1.get().replace(",","."))
+    if valuep1.get() and valuep1.get() != '\0' and float(valuep1.get()) >= 0.01 and float(valuep1.get()) < 1000 and divmod(100*float(valuep1.get()),1)[1]<=0: # Cette dernière partie permet de garder des nombre avec moins de deux décimales
+        # On enlève les 0 en trop
         L=[]
         for i in range (len(valuep1.get())):
             L.append(valuep1.get()[i])
         while L[0]=="0" and L[1]!="." and L[1]!=",":
             del L[0]
         valuep1.set(''.join(L))
-        ###########################################
+        # Si le nombre est un entier, il vaut mieux faire ça
         if int(float(valuep1.get()))==float(valuep1.get()):
             valuep1.set(str(int(float(valuep1.get()))))
         global value
         value=float(valuep1.get())
-        num=[]
-        ############## fin de phase1 ##############
+        # Fin de phase1
         framep1.pack_forget()
         labelp1.pack_forget()
         entreep1.pack_forget()
@@ -194,21 +218,21 @@ def phase2(event=None):
         frameEx.pack_forget()
         buttonEx.pack_forget()
         fenetre.unbind("<Return>")
-        ###########################################
+        # Initialisation de la phase 2
         fenetre.geometry("1350x400")
         fenetre.minsize(1350,400)
+        # On définit pu et p = pu (p initialement à 675)
         if 10*float(value)%1>0: # si 0.01 #########
             pu.set(str(675+300))
             p.set(str(float(p.get())+300))
-            valuep1.set(valuep1.get().replace(".",""))
-            valuep1.set(valuep1.get().replace(",",""))
         elif float(value)%1>0: # si 0.1 ###########
             pu.set(str(675+150))
             p.set(str(float(p.get())+150))
-            valuep1.set(valuep1.get().replace(".",""))
-            valuep1.set(valuep1.get().replace(",",""))
         else: # si 1 ##############################
             pu.set("675")
+        valuep1.set(valuep1.get().replace(".",""))
+        # On pose les différents chiffres du nombre
+        num=[]
         for i in range (len(valuep1.get())):
             num.append(canvasp2.create_text(float(p.get()),145,text=valuep1.get()[len(valuep1.get())-i-1],font="Arial 20",fill='black',tags='number'))
             p.set(str(float(p.get())-150))
