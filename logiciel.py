@@ -8,7 +8,9 @@ value1p2 -> (StringVar) le texte de multiplication de la phase 2
 value2p2 -> (StringVar) la puissance de 10 courante
 value3p2 -> (StringVar) égale à valuep1
 pos -> (list) liste des positions des chiffres du nombre
-
+value1p3 -> (StringVar) le nombre de l'exercice
+value2p3 -> (StringVar) l'exposant de 10 du nombre de l'exercice
+value3p3 -> (StringVar)
 '''
 
 #Début
@@ -20,10 +22,6 @@ from random import*
 
 fenetre = Tk()
 fenetre.title("La multiplication par 10, 100, 1000, ...")
-
-global value
-global labelmincepacked
-labelmincepacked=False
 
 #Fonctions de fenetres
 
@@ -56,6 +54,8 @@ def quitter(event):
 # Fonctions de calcul
 
 def multi(event=None):
+    num=[]        
+    pos=[]
     # Initialisation de value2p2
     value2p2.set(str(float(value2p2.get())*10))
     # Si le value2p2 est un entier, il vaut mieux faire ça
@@ -77,14 +77,11 @@ def multi(event=None):
         pu.set(str(float(pu.get())-150))
         canvasp2.delete('number') # On enlève tous les chiffres du canva
         # On remplit pos avec les positions de chaque chiffres
-        pos=[]
         p.set(pu.get())
+        # On change p en fonction de l'arrondi
         if value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
-            p.set(float(pu.get())-150)
-        print(pu.get())
-        num=[]
+            p.set(float(p.get())-150)
         for i in range (len(value3p2.get())):
-            print(p.get(), value3p2.get()[len(value3p2.get())-i-1])
             num.append(canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number'))
             pos.append(float(p.get()))
             if float(p.get())<225: # Si on atteint la limite du cadre
@@ -104,13 +101,15 @@ def multi(event=None):
             # alors on complète de 0 jusqu'à la case centrale
 
 def div(event=None):
+    num=[]
+    pos=[]
     # Initialisation de value2p2 et de value3p2
     value3p2.set(valuep1.get())
     value2p2.set(str(float(value2p2.get())/10))
     # Arrondis du nombre pour un meilleur affichage dans les petites puissances
-    if value%1>=0.5 and float(value2p2.get())==0.0001:
+    if value%1>=0 and float(value2p2.get())==0.0001:
         value3p2.set(round(value))
-    elif value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
+    if value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
         value3p2.set(str(ceil(10*value)/10).replace(".",""))
     # Si le value2p2 est un entier, il vaut mieux faire ça
     if float(floor(float(value2p2.get()))) == float(value2p2.get()):
@@ -124,16 +123,13 @@ def div(event=None):
         pu.set(str(float(pu.get())+150))
         canvasp2.delete('number') # On enlève tous les chiffres du canva
         # On remplit pos avec les positions de chaque chiffres
-        pos=[]
         p.set(pu.get())
+        # On change p en fonction de l'arrondi
         if value%1>=0.5 and float(value2p2.get())==0.0001:
-            p.set(float(pu.get())-300)
-        elif value%1>0 and 10*value%1>=0.5 and float(value2p2.get())==0.001:
-            p.set(float(pu.get())-150)
-        print(pu.get())
-        num=[]
+            p.set(float(p.get())-150)
+        if value%1>0 and 10*value%1>=0.5 and float(value2p2.get())<=0.001:
+            p.set(float(p.get())-150)
         for i in range (len(value3p2.get())):
-            print(p.get(), value3p2.get()[len(value3p2.get())-i-1])
             num.append(canvasp2.create_text(float(p.get()),145,text=value3p2.get()[len(value3p2.get())-i-1],font="Arial 20",fill='black',tags='number'))
             pos.append(float(p.get()))
             if float(p.get())<225: # Si on atteint la limite du cadre
@@ -192,19 +188,46 @@ def retour(n):
 # Fonction de phases
 
 def phase1():
+    # Fin de phase 2
+    canvasp2.pack_forget()
+    frame1p2.pack_forget()
+    button1p2.pack_forget()
+    frame2p2.pack_forget()
+    labelp2.pack_forget()
+    button2p2.pack_forget()
+    canvasp2.delete('number') # On enlève tous les chiffres du canva
+    value1p2.set('\0')
+    value2p2.set('\0')
+    value3p2.set('\0')
+    p.set('\0')
+    pu.set('\0')
+    # bouton d'exercice
+    frameEx.pack_forget()
+    buttonEx.pack_forget()
+    # Phase 1
     valuep1.set('\0')
     labelp1.pack(pady=5)
     entreep1.pack()
     buttonp1.pack(pady=10)
     framep1.pack(expand=True, anchor=CENTER)
+    frameEx.pack(side=BOTTOM,pady=10)
+    buttonEx.pack(side=RIGHT,padx=10)
     entreep1.focus_set()
     fenetre.bind("<Return>",phase2)
     fenetre.geometry("1200x200")
     fenetre.minsize(1200,200)
 
 def phase2(event=None):
+    value1p2.set(" x1.0 ")
+    value2p2.set("1")
+    p.set("675")
+    num=[]
     valuep1.set(valuep1.get().replace(",","."))
-    if valuep1.get() and valuep1.get() != '\0' and float(valuep1.get()) >= 0.01 and float(valuep1.get()) < 1000 and divmod(100*float(valuep1.get()),1)[1]<=0: # Cette dernière partie permet de garder des nombre avec moins de deux décimales
+    try : float(valuep1.get())
+    except :
+        erreur("la valeur entrée " + valuep1.get() + " n'est pas conforme")
+        return
+    if valuep1.get() and valuep1.get() != '\0' and float(valuep1.get()) >= 0.01 and float(valuep1.get()) < 1000 and divmod(100*float(valuep1.get()),1)[1]<=10**-10: # Cette dernière partie permet de garder des nombre avec moins de deux décimales
         # On enlève les 0 en trop
         L=[]
         for i in range (len(valuep1.get())):
@@ -217,14 +240,15 @@ def phase2(event=None):
             valuep1.set(str(int(float(valuep1.get()))))
         global value
         value=float(valuep1.get())
-        # Fin de phase1
-        framep1.pack_forget()
+        # Fin de phase 1
         labelp1.pack_forget()
         entreep1.pack_forget()
         buttonp1.pack_forget()
+        framep1.pack_forget()
+        fenetre.unbind("<Return>")
+        # objets d'exercices
         frameEx.pack_forget()
         buttonEx.pack_forget()
-        fenetre.unbind("<Return>")
         # Initialisation de la phase 2
         fenetre.geometry("1350x400")
         fenetre.minsize(1350,400)
@@ -239,7 +263,6 @@ def phase2(event=None):
             pu.set("675")
         valuep1.set(valuep1.get().replace(".",""))
         # On pose les différents chiffres du nombre
-        num=[]
         for i in range (len(valuep1.get())):
             num.append(canvasp2.create_text(float(p.get()),145,text=valuep1.get()[len(valuep1.get())-i-1],font="Arial 20",fill='black',tags='number'))
             p.set(str(float(p.get())-150))
@@ -257,32 +280,39 @@ def phase2(event=None):
     else:
         erreur("Vous devez choisir un nombre plus grand que 0.1 et plus petit que 1000.\nLes nombres décimaux avec plus de deux chiffres après la virgule\nne sont pas acceptés non plus.")
 
-def phase3exo1():'''
-    framep1.pack_forget()
+def phase3exo1():
+    # Fin de phase 1
     labelp1.pack_forget()
     entreep1.pack_forget()
     buttonp1.pack_forget()
-    canvasp2.delete('number')
+    framep1.pack_forget()
+    fenetre.unbind("<Return>")
+    # Fin de phase 2
     canvasp2.pack_forget()
     frame1p2.pack_forget()
     button1p2.pack_forget()
     frame2p2.pack_forget()
     labelp2.pack_forget()
     button2p2.pack_forget()
+    canvasp2.delete('number') # On enlève tous les chiffres du canva
+    value1p2.set('\0')
+    value2p2.set('\0')
+    value3p2.set('\0')
+    p.set('\0')
+    pu.set('\0')
+    fenetre.unbind("<Left>")
+    fenetre.unbind("<Right>")
+    # bouton d'exercice
     frameEx.pack_forget()
     buttonEx.pack_forget()
+    # Phase 3
+    fenetre.geometry("400x200")
+    fenetre.minsize(400,200)
     label1p3.pack(pady=5)
     label3p3.pack(pady=5)
     for i in range (len(label2p3)):
         label2p3[i].pack(side='left',expand='False')
     framep3.pack()
-    value1p2.set(" x1 ")
-    value2p2.set("1")
-    pu.set("675")
-    p.set("675")
-    fenetre.unbind("<Return>")
-    fenetre.unbind("<Left>")
-    fenetre.unbind("<Right>")
     fenetre.bind("<Return>",Exo1)
     label2p3[1].bind("<Enter>",func=lambda x:entrer(0))
     label2p3[3].bind("<Enter>",func=lambda x:entrer(1))
@@ -333,7 +363,7 @@ def phase3exo1():'''
         label2p3[27].bind("<Enter>",func=lambda x:entrer(13))
         label2p3[27].bind("<Leave>",func=lambda x:sortir(13))
         label2p3[27].bind("<Button>",func=lambda x:retour(13))
-'''
+
 def phase3exo2():'''
     framep1.pack_forget()
     labelp1.pack_forget()
@@ -425,9 +455,7 @@ buttonp1=Button(framep1, text="Valider",command=phase2,font="Arial 15")
 
 L=[]
 value1p2=StringVar()
-value1p2.set(" x1.0 ")
 value2p2=StringVar()
-value2p2.set("1")
 value3p2=StringVar()
 canvasp2 = Canvas(fenetre, width=1350, height=200)
 canvasp2.create_text(75,45,text="dix-\nmilliers",font="Arial 20",fill='black')
@@ -448,10 +476,7 @@ canvasp2.create_text(1125,45,text="millièmes",font="Arial 20",fill='black')
 canvasp2.create_line((1200, 0), (1200, 200), width=2, fill='black')
 canvasp2.create_text(1275,45,text="dix-\nmillièmes",font="Arial 20",fill='black')
 canvasp2.create_line((0,100), (1350,100), width=2, fill='black')
-num=[0,0,0,0]
-pos=[]
 p=StringVar()
-p.set("675")
 pu=StringVar()
 frame1p2=Frame(fenetre)
 photo1=PhotoImage(file = "flechegauche.png")
@@ -524,8 +549,6 @@ valf=StringVar()
 fenetre.bind("<Escape>",quitter)
 frameEx=Frame(fenetre)
 buttonEx=Button(frameEx,text="Passer aux exercices",font="Arial 15",width=20,height=1,command=phase3exo1)
-frameEx.pack(side=BOTTOM,pady=10)
-buttonEx.pack(side=RIGHT,padx=10)
 
 phase1()
 fenetre.mainloop()
